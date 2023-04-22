@@ -1,0 +1,85 @@
+<?php
+$servername = "localhost";
+$username = "root";
+$password = "#Nancy1998";
+$dbname = "george_condo";
+
+// Create connection
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Check if form is submitted
+if(isset($_POST['confirm'])) {
+  // Get the reservations ids that were confirmed
+  if(isset($_POST['confirmed'])) {
+    foreach($_POST['confirmed'] as $id) {
+      $sql = "UPDATE reservations SET status='confirmed' WHERE id='$id'";
+      $conn->query($sql);
+    }
+  }
+  
+  // Get the reservations ids that were denied
+  if(isset($_POST['denied'])) {
+    foreach($_POST['denied'] as $id) {
+      $sql = "UPDATE reservations SET status='denied' WHERE id='$id'";
+      $conn->query($sql);
+    }
+  }
+}
+
+// Retrieve all reservations from the database
+$sql = "SELECT * FROM reservations";
+$result = $conn->query($sql);
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Bookings</title>
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+  <h1>Restaurant's Side</h1>
+  <h2>Table Reservations</h2>
+
+  <form method="post" action="">
+    <table>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th>Date</th>
+        <th>Time</th>
+        <th>Guests</th>
+        <th>Status</th>
+        <th>Confirmed</th>
+        <th>Denied</th>
+      </tr>
+      <?php while($row = $result->fetch_assoc()) { ?>
+        <tr>
+          <td><?php echo $row['name']; ?></td>
+          <td><?php echo $row['email']; ?></td>
+          <td><?php echo $row['phone']; ?></td>
+          <td><?php echo $row['date']; ?></td>
+          <td><?php echo $row['time']; ?></td>
+          <td><?php echo $row['numPeople']; ?></td>
+          <td><?php echo $row['status']; ?></td>
+          <td><input type="checkbox" name="confirmed[]" value="<?php echo $row['id']; ?>"></td>
+          <td><input type="checkbox" name="denied[]" value="<?php echo $row['id']; ?>"></td>
+        </tr>
+      <?php } ?>
+    </table>
+    <input type="submit" name="confirm" value="Confirm/Deny">
+  </form>
+
+</body>
+</html>
+
+<?php
+// Close database connection
+$conn->close();
+?>
